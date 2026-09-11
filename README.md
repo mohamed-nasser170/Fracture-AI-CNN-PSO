@@ -140,3 +140,11 @@ The following plots are generated automatically:
 | Albumentations | (Imported) Advanced augmentation |
 | OpenCV / PIL   | Image reading & inspection       |
 | Matplotlib / Seaborn | Visualization               |
+
+
+| Split         | Dataset                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| 🏋️ Train     | [Google Drive](https://drive.google.com/drive/folders/1BQ_exC8Ob81Rw2Wltx0i2PzH9LX0XCoz?usp=drive_link) |
+| 🔍 Validation | [Google Drive](https://drive.google.com/drive/folders/1PWXtZ8A0cZIy6yebReA87fC_VApOfP5o?usp=drive_link) |
+| 🧪 Test       | [Google Drive](https://drive.google.com/drive/folders/1fOLCf4kqD0cH_FBTMzpai1JbwbvZSn5y?usp=drive_link) |
+
