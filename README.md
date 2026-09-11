@@ -1,80 +1,142 @@
-# FractureAI-CNN-PSO
+# 🦴 Bone Fracture Detection using CNN & PSO
 
-## Bone Fracture Classification Using Deep Learning and Particle Swarm Optimization
-
-An AI-based deep learning project for classifying X-ray images into two categories:
-
-- Fractured
-- Not Fractured
-
-The project combines a Convolutional Neural Network (CNN) with Particle Swarm Optimization (PSO) to optimize important hyperparameters and improve classification performance.
+A deep learning project for binary image classification — detecting **fractured** vs **non-fractured** bones from X-ray images. Two models are compared: a baseline CNN and a PSO-optimized CNN.
 
 ---
 
-## Project Overview
+## 📁 Dataset Structure
 
-Bone fracture classification from X-ray images is an important computer vision task in medical imaging.
+```
+dataset/
+├── train/
+│   ├── fractured/
+│   └── not Fractured/
+├── val/
+│   ├── fractured/
+│   └── not Fractured/
+└── test/
+    ├── fractured/
+    └── not Fractured/
+```
 
-Manual examination of X-ray images can be time-consuming and may be affected by human error. Deep learning provides an opportunity to automatically analyze X-ray images and assist in distinguishing between fractured and non-fractured cases.
-
-In this project, a CNN-based classification model was developed and then optimized using Particle Swarm Optimization (PSO).
-
-The complete workflow includes:
-
-1. Dataset analysis
-2. Image preprocessing
-3. Data augmentation
-4. CNN model development
-5. Model training
-6. Model evaluation
-7. Hyperparameter optimization using PSO
-8. Comparison between the base and optimized models
-9. Deployment using Streamlit
+All images are resized to **224×224 RGB** during preprocessing.
 
 ---
 
-## Objectives
+## 🔧 Requirements
 
-The main objectives of the project are:
+```bash
+pip install tensorflow torch numpy matplotlib seaborn scikit-learn opencv-python pillow albumentations tqdm pyswarm
+```
 
-- Build a deep learning model for bone fracture classification.
-- Classify X-ray images into fractured and non-fractured classes.
-- Apply image preprocessing and augmentation techniques.
-- Develop a CNN baseline model.
-- Optimize CNN hyperparameters using Particle Swarm Optimization.
-- Compare the performance of the baseline and optimized models.
-- Deploy the trained model through a Streamlit application.
+> **Note:** CUDA-compatible GPU is recommended for faster training. The code includes GPU availability checks via PyTorch and runs training on TensorFlow/Keras.
 
 ---
 
-## Dataset
+## 🔬 Project Pipeline
 
-The dataset contains X-ray images divided into three subsets:
+### 1. Exploratory Data Analysis (EDA)
+- Class distribution pie charts for train / val / test splits
+- Random sample visualization (20 images per class)
+- Image size and channel distribution analysis
+- Broken/corrupted image detection
 
-- Training Set
-- Validation Set
-- Test Set
+### 2. Preprocessing
+| Split      | Augmentation |
+|------------|-------------|
+| Train      | Rotation ±20°, width/height shift ±20%, zoom ±20%, horizontal flip |
+| Validation | Rescale only (1/255) |
+| Test       | Rescale only (1/255) |
 
-Each subset contains two classes:
-
-- Fractured
-- Not Fractured
-
-### Dataset Analysis
-
-The following analysis was performed:
-
-- Class distribution visualization
-- Image size analysis
-- Channel inspection
-- RGB / Grayscale inspection
-- Detection of corrupted images
+Batch size: **32** — Shuffled training, fixed seed for reproducibility.
 
 ---
 
-## Data Preprocessing
+## 🧠 Models
 
-All images were resized to:
+### Model 1 — Baseline CNN
 
-```text
-224 × 224
+| Layer         | Details                        |
+|---------------|-------------------------------|
+| Conv2D × 4    | 32 → 64 → 128 → 64 filters, 3×3, ReLU |
+| MaxPooling2D  | 2×2 after each Conv block     |
+| Dense         | 128 units, ReLU               |
+| Dropout       | 0.3                           |
+| Output        | 1 unit, Sigmoid               |
+
+- **Optimizer:** AdamW (lr = 1e-4)  
+- **Loss:** Binary Crossentropy  
+- **Epochs:** 15
+
+---
+
+### Model 2 — CNN + PSO Hyperparameter Optimization
+
+Same architecture as Model 1, but **learning rate** and **dropout rate** are optimized using **Particle Swarm Optimization (PSO)**.
+
+| PSO Parameter   | Value          |
+|-----------------|----------------|
+| Swarm size      | 8 particles    |
+| Max iterations  | 5              |
+| LR search range | [1e-5, 1e-3]   |
+| Dropout range   | [0.2, 0.5]     |
+| Fitness metric  | Validation accuracy (maximized) |
+
+Each particle trains for **3 epochs** to evaluate fitness. The best hyperparameters are then used to train the final model for **15 epochs**.
+
+---
+
+## 📊 Evaluation
+
+Both models are evaluated on:
+
+- Accuracy (Train / Validation / Test)
+- Precision & Recall curves over epochs
+- F1 Score on the test set
+- Confusion matrices (Train & Test)
+- Classification report
+
+---
+
+## 📈 Results Visualization
+
+The following plots are generated automatically:
+
+- Pie charts — class distribution per split
+- Bar charts — top image sizes, channel distribution
+- Training curves — Precision & Recall vs. epochs
+- Confusion matrices — heatmaps for train and test sets
+- Accuracy comparison bar chart — Train vs. Val vs. Test
+
+---
+
+## 🚀 How to Run
+
+1. Update the dataset paths in the notebook to point to your local directories.
+2. Run the **EDA** section to inspect and validate your data.
+3. Run **Preprocessing** to set up data generators.
+4. Train **Model 1** (baseline CNN).
+5. Run **PSO optimization**, then train **Model 2** with best hyperparameters.
+6. Compare results using the evaluation and visualization cells.
+
+---
+
+## 📌 Notes
+
+- `ImageFile.LOAD_TRUNCATED_IMAGES = True` is set to handle partially corrupted images gracefully.
+- `CUDA_LAUNCH_BLOCKING=1` is enabled for easier CUDA error debugging.
+- Anomaly detection is enabled via `torch.autograd.set_detect_anomaly(True)`.
+
+---
+
+## 🏗️ Tech Stack
+
+| Library        | Purpose                          |
+|----------------|----------------------------------|
+| TensorFlow / Keras | Model building & training    |
+| PyTorch        | GPU verification                 |
+| scikit-learn   | Metrics & class weight utilities |
+| pyswarm        | PSO optimization                 |
+| Albumentations | (Imported) Advanced augmentation |
+| OpenCV / PIL   | Image reading & inspection       |
+| Matplotlib / Seaborn | Visualization               |
